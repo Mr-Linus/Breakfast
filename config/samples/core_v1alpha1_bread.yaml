@@ -1,0 +1,18 @@
+apiVersion: core.run-linux.com/v1alpha1
+kind: Bread
+metadata:
+  name: bread-sample
+spec:
+  # Add fields here
+  scv:
+    gpu: "1"
+    memory: "4000"
+    level: "Medium"
+  framework:
+    name: "tensorflow"
+    version: "2.0"
+  task:
+    type: "ssh"
+    path: "/root"
+    command: ""
+
