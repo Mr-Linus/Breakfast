@@ -96,6 +96,11 @@ func (r *Bread) ValidateTask() *field.Error {
 			"Task Type can't set to:"+
 				r.Spec.Task.Type)
 	}
+	if r.Spec.Task.Type == "train" && r.Spec.Task.Command == "" {
+		return field.Invalid(field.NewPath("spec").Child("task").Child("command"),
+			r.Spec.Task.Type,
+			"Task Command can't set to Null")
+	}
 	return nil
 }
 

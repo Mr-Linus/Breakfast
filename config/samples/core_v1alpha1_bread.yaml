@@ -6,7 +6,7 @@ spec:
   # Add fields here
   scv:
     gpu: "1"
-    memory: "4000"
+    memory: "1000"
     level: "Medium"
   framework:
     name: "tensorflow"

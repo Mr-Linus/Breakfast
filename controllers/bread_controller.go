@@ -22,6 +22,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -37,15 +38,15 @@ type BreadReconciler struct {
 // +kubebuilder:rbac:groups=core.run-linux.com,resources=breads,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core.run-linux.com,resources=breads/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch;create;update;patch;delete
-
 func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	var (
 		ctx             = context.Background()
 		bread           corev1alpha1.Bread
 		deleteFinalizer = "onDelete"
 		log             = r.Log.WithValues("bread", req.NamespacedName)
+		pod             = v1.Pod{}
 	)
-	// your logic here
+	// The last Reconcile of deleting CR.
 	if err := r.Get(ctx, req.NamespacedName, &bread); err != nil {
 		log.Info(err.Error())
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
@@ -53,8 +54,7 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	// Create Policy
-	pod := v1.Pod{}
+	// Create CR Policy
 	err := r.Client.Get(ctx, client.ObjectKey{Namespace: bread.Namespace, Name: bread.Name}, &pod)
 	if errors.IsNotFound(err) {
 		if err := r.OnCreate(ctx, &bread); err != nil {
@@ -62,28 +62,29 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		bread.Status.Phase = pod.Status.Phase
 		bread.Status.ContainerStatuses = pod.Status.ContainerStatuses
+		// OnCreate() Function does not call r.Update()
 		return ctrl.Result{}, r.Update(ctx, &bread)
 	}
-	//Update Policy
+	//Update CR & Pod Policy
+	//if pod.Spec.SchedulerName != PodSchedulingSelector(&bread) {
+	//	log.Info("Pod: " + pod.Name + " SchedulerName changed. Ready to update the pod")
+	//	return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
+	//}
+	if !reflect.DeepEqual(pod.GetLabels(), GetPodLabel(&bread)) {
+		log.Info("Pod: " + pod.Name + " label changed. Ready to update the pod")
+		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
+	}
+	// Update Pod Policy
 	if pod.Status.Phase == v1.PodUnknown || pod.Status.Phase == v1.PodFailed {
-		if err := r.Client.Delete(ctx, &pod); err != nil {
-			return ctrl.Result{}, err
-		}
-		if err := r.OnCreate(ctx, &bread); err != nil {
-			return ctrl.Result{}, err
-		}
-		bread.Status.Phase = pod.Status.Phase
-		bread.Status.ContainerStatuses = pod.Status.ContainerStatuses
-		return ctrl.Result{}, nil
+		log.Info("Pod: " + pod.Name + " status is" + pod.Status.String() + " . Ready to update the pod")
+		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
 	}
 	bread.Status.Phase = pod.Status.Phase
 	bread.Status.ContainerStatuses = pod.Status.ContainerStatuses
-	// Delete Policy
-
+	// Delete CR Policy
 	if err := r.OnDelete(ctx, deleteFinalizer, &bread); err != nil {
 		return ctrl.Result{}, err
 	}
-
 	return ctrl.Result{}, nil
 }
 
