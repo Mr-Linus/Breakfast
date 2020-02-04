@@ -5,25 +5,32 @@ import (
 	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
 	"github.com/go-openapi/swag"
 	v1 "k8s.io/api/core/v1"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // OnCreate is used to create pod. It will not update the CR.
 func (r *BreadReconciler) OnCreate(ctx context.Context, bread *corev1alpha1.Bread) error {
+	log := r.Log.WithName("Create Pod")
 	if TaskIsSSH(bread) {
+		log.Info("Create SSH Pod")
 		return r.CreateSSHPod(ctx, bread)
+	} else {
+		log.Info("Create Task Pod")
+		return r.CreateTaskPod(ctx, bread)
 	}
-	return r.CreateTaskPod(ctx, bread)
 }
 
 // OnDelete is used to delete pod. It will be update the CR.
 // OnDelete will judge whether CR needs to be deleted.
 // If the CR needs to be deleted, OnDelete will delete the pod
 // by deleteFinalizer.
-func (r *BreadReconciler) OnDelete(ctx context.Context, deleteFinalizer string, bread *corev1alpha1.Bread) error {
+func (r *BreadReconciler) OnDelete(ctx context.Context, req ctrl.Request, deleteFinalizer string, bread *corev1alpha1.Bread) error {
+	log := r.Log.WithName("Delete Pod")
 	if bread.ObjectMeta.DeletionTimestamp.IsZero() {
 		if !swag.ContainsStrings(bread.ObjectMeta.Finalizers, deleteFinalizer) {
 			bread.ObjectMeta.Finalizers = append(bread.ObjectMeta.Finalizers, deleteFinalizer)
+			return r.Update(ctx, bread)
 		}
 	} else {
 		if swag.ContainsStrings(bread.ObjectMeta.Finalizers, deleteFinalizer) {
@@ -34,12 +41,12 @@ func (r *BreadReconciler) OnDelete(ctx context.Context, deleteFinalizer string, 
 			}
 			for _, b := range bList.Items {
 				pod := v1.Pod{}
-				err := r.Client.Get(ctx, client.ObjectKey{Namespace: b.Namespace, Name: b.Name}, &pod)
+				err := r.Client.Get(ctx, req.NamespacedName, &pod)
 				if err != nil {
-					r.Log.Info(err.Error())
+					log.Info(err.Error())
 				} else {
 					if err = r.Delete(ctx, &pod); err != nil {
-						r.Log.Info(err.Error())
+						log.Info(err.Error())
 					}
 				}
 				err = r.Delete(ctx, &b)
@@ -57,9 +64,10 @@ func (r *BreadReconciler) OnDelete(ctx context.Context, deleteFinalizer string, 
 					}
 					return list
 				}(deleteFinalizer, bread.ObjectMeta.Finalizers)
+			return r.Update(ctx, bread)
 		}
 	}
-	return r.Update(ctx, bread)
+	return r.Status().Update(ctx, bread)
 }
 
 // OnUpdate is used to update pod. It will not be update the CR.

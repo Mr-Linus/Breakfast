@@ -55,7 +55,7 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	// Create CR Policy
-	err := r.Client.Get(ctx, client.ObjectKey{Namespace: bread.Namespace, Name: bread.Name}, &pod)
+	err := r.Client.Get(ctx, req.NamespacedName, &pod)
 	if errors.IsNotFound(err) {
 		if err := r.OnCreate(ctx, &bread); err != nil {
 			return ctrl.Result{}, err
@@ -63,7 +63,7 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		bread.Status.Phase = pod.Status.Phase
 		bread.Status.ContainerStatuses = pod.Status.ContainerStatuses
 		// OnCreate() Function does not call r.Update()
-		return ctrl.Result{}, r.Update(ctx, &bread)
+		return ctrl.Result{}, r.Status().Update(ctx, &bread)
 	}
 	//Update CR & Pod Policy
 	//if pod.Spec.SchedulerName != PodSchedulingSelector(&bread) {
@@ -82,7 +82,7 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	bread.Status.Phase = pod.Status.Phase
 	bread.Status.ContainerStatuses = pod.Status.ContainerStatuses
 	// Delete CR Policy
-	if err := r.OnDelete(ctx, deleteFinalizer, &bread); err != nil {
+	if err := r.OnDelete(ctx, req, deleteFinalizer, &bread); err != nil {
 		return ctrl.Result{}, err
 	}
 	return ctrl.Result{}, nil

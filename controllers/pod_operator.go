@@ -10,7 +10,6 @@ import (
 
 func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
 	labels := map[string]string{"bread": bread.Name}
-
 	if bread.Spec.Scv.Level != "" {
 		labels["scv/Label"] = bread.Spec.Scv.Level
 	}
@@ -60,6 +59,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 		},
 		Spec: v1.PodSpec{
 			//SchedulerName: PodSchedulingSelector(bread),
+			RestartPolicy: v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
 					Name:  bread.Name,
@@ -70,7 +70,6 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 							Value: "0",
 						},
 					},
-
 					Resources: v1.ResourceRequirements{},
 					VolumeMounts: []v1.VolumeMount{
 						{
@@ -92,14 +91,11 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 			},
 		},
 	}
-	if err := r.Client.Create(ctx, &sshPod); err != nil {
-		return err
-	}
-	return nil
+	return r.Client.Create(ctx, &sshPod)
 }
 
 func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1.Bread) error {
-	var sshPod = v1.Pod{
+	var TaskPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
 			Kind:       "Pod",
@@ -111,6 +107,7 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 		},
 		Spec: v1.PodSpec{
 			//SchedulerName: PodSchedulingSelector(bread),
+			RestartPolicy: v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
 					Name:  bread.Name,
@@ -143,8 +140,5 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 			},
 		},
 	}
-	if err := r.Client.Create(ctx, &sshPod); err != nil {
-		return err
-	}
-	return nil
+	return r.Client.Create(ctx, &TaskPod)
 }
