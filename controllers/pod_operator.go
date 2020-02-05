@@ -70,6 +70,12 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 							Value: "0",
 						},
 					},
+					Ports: []v1.ContainerPort{
+						{
+							Name:          "SSH",
+							ContainerPort: 22,
+						},
+					},
 					Resources: v1.ResourceRequirements{},
 					VolumeMounts: []v1.VolumeMount{
 						{
