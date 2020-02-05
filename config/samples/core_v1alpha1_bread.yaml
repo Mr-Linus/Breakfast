@@ -4,7 +4,6 @@ metadata:
   name: test
   namespace: root
 spec:
-  # Add fields here
   scv:
     gpu: "1"
     memory: "1000"

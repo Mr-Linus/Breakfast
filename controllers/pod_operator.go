@@ -58,7 +58,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 			Labels:    GetPodLabel(bread),
 		},
 		Spec: v1.PodSpec{
-			//SchedulerName: PodSchedulingSelector(bread),
+			SchedulerName: PodSchedulingSelector(bread),
 			RestartPolicy: v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
@@ -72,7 +72,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 					},
 					Ports: []v1.ContainerPort{
 						{
-							Name:          "SSH",
+							Name:          "ssh",
 							ContainerPort: 22,
 						},
 					},
@@ -90,7 +90,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 					Name: bread.Name + "-vol",
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
-							Path: bread.Spec.Task.Path,
+							Path: "/gluster-vol"+bread.Namespace,
 						},
 					},
 				},
@@ -112,7 +112,7 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 			Labels:    GetPodLabel(bread),
 		},
 		Spec: v1.PodSpec{
-			//SchedulerName: PodSchedulingSelector(bread),
+			SchedulerName: PodSchedulingSelector(bread),
 			RestartPolicy: v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
@@ -139,7 +139,7 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 					Name: bread.Name + "-vol",
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
-							Path: bread.Spec.Task.Path,
+							Path: "/gluster-vol"+bread.Namespace,
 						},
 					},
 				},

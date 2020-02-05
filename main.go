@@ -72,10 +72,10 @@ func main() {
 		os.Exit(1)
 	}
 	//TODO: Open the webhooks
-	//if err = (&corev1alpha1.Bread{}).SetupWebhookWithManager(mgr); err != nil {
-	//	setupLog.Error(err, "unable to create webhook", "webhook", "Bread")
-	//	os.Exit(1)
-	//}
+	if err = (&corev1alpha1.Bread{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "Bread")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")

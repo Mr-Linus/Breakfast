@@ -66,10 +66,10 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, r.Status().Update(ctx, &bread)
 	}
 	//Update CR & Pod Policy
-	//if pod.Spec.SchedulerName != PodSchedulingSelector(&bread) {
-	//	log.Info("Pod: " + pod.Name + " SchedulerName changed. Ready to update the pod")
-	//	return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
-	//}
+	if pod.Spec.SchedulerName != PodSchedulingSelector(&bread) {
+		log.Info("Pod: " + pod.Name + " SchedulerName changed. Ready to update the pod")
+		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
+	}
 	if !reflect.DeepEqual(pod.GetLabels(), GetPodLabel(&bread)) {
 		log.Info("Pod: " + pod.Name + " label changed. Ready to update the pod")
 		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
