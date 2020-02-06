@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/swag"
 	v1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // OnCreate is used to create pod. It will not update the CR.
@@ -34,39 +33,33 @@ func (r *BreadReconciler) OnDelete(ctx context.Context, req ctrl.Request, delete
 		}
 	} else {
 		if swag.ContainsStrings(bread.ObjectMeta.Finalizers, deleteFinalizer) {
-			bList := &corev1alpha1.BreadList{}
-			err := r.List(ctx, bList, client.InNamespace(bread.Namespace))
+			pod := v1.Pod{}
+			err := r.Client.Get(ctx, req.NamespacedName, &pod)
 			if err != nil {
-				return err
-			}
-			for _, b := range bList.Items {
-				pod := v1.Pod{}
-				err := r.Client.Get(ctx, req.NamespacedName, &pod)
-				if err != nil {
+				log.Info(err.Error())
+			} else {
+				if err = r.Delete(ctx, &pod); err != nil {
 					log.Info(err.Error())
-				} else {
-					if err = r.Delete(ctx, &pod); err != nil {
-						log.Info(err.Error())
-					}
-				}
-				err = r.Delete(ctx, &b)
-				if err != nil {
-					return err
 				}
 			}
-			bread.ObjectMeta.Finalizers =
-				func(value string, chain []string) []string {
-					var list = chain
-					for i, v := range chain {
-						if v == value {
-							list = append(list[:i], list[i+1:]...)
-						}
-					}
-					return list
-				}(deleteFinalizer, bread.ObjectMeta.Finalizers)
-			return r.Update(ctx, bread)
+			err = r.Delete(ctx, bread)
+			if err != nil {
+					return err
+			}
 		}
+		bread.ObjectMeta.Finalizers =
+			func(value string, chain []string) []string {
+				var list = chain
+				for i, v := range chain {
+					if v == value {
+						list = append(list[:i], list[i+1:]...)
+					}
+				}
+				return list
+			}(deleteFinalizer, bread.ObjectMeta.Finalizers)
+		return r.Update(ctx, bread)
 	}
+
 	return r.Status().Update(ctx, bread)
 }
 
