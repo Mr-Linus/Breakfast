@@ -11,10 +11,10 @@ import (
 func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
 	labels := map[string]string{"bread": bread.Name}
 	if bread.Spec.Scv.Level != "" {
-		labels["scv/Label"] = bread.Spec.Scv.Level
+		labels["scv/Level"] = bread.Spec.Scv.Level
 	}
 	if bread.Spec.Scv.Gpu != "0" {
-		labels["scv/Gpu"] = bread.Spec.Scv.Gpu
+		labels["scv/Number"] = bread.Spec.Scv.Gpu
 		if bread.Spec.Scv.Memory != "" {
 			labels["scv/FreeMemory"] = bread.Spec.Scv.Memory
 		}
