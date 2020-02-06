@@ -90,7 +90,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 					Name: bread.Name + "-vol",
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
-							Path: "/gluster-vol"+bread.Namespace,
+							Path: "/gluster-vol/"+bread.Namespace,
 						},
 					},
 				},
@@ -139,7 +139,7 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 					Name: bread.Name + "-vol",
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
-							Path: "/gluster-vol"+bread.Namespace,
+							Path: "/gluster-vol/"+bread.Namespace,
 						},
 					},
 				},
