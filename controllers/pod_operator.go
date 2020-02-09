@@ -5,6 +5,7 @@ import (
 	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 )
 
@@ -47,6 +48,7 @@ func GetPodImage(bread *corev1alpha1.Bread) string {
 }
 
 func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.Bread) error {
+	var sharePID = true
 	var sshPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
@@ -58,8 +60,9 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 			Labels:    GetPodLabel(bread),
 		},
 		Spec: v1.PodSpec{
-			SchedulerName: PodSchedulingSelector(bread),
-			RestartPolicy: v1.RestartPolicyNever,
+			ShareProcessNamespace: &sharePID,
+			SchedulerName:         PodSchedulingSelector(bread),
+			RestartPolicy:         v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
 					Name:  bread.Name,
@@ -90,7 +93,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 					Name: bread.Name + "-vol",
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
-							Path: "/gluster-vol/"+bread.Namespace,
+							Path: "/gluster-vol/" + bread.Namespace,
 						},
 					},
 				},
@@ -101,6 +104,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 }
 
 func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1.Bread) error {
+	var sharePID = true
 	var TaskPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
@@ -112,8 +116,9 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 			Labels:    GetPodLabel(bread),
 		},
 		Spec: v1.PodSpec{
-			SchedulerName: PodSchedulingSelector(bread),
-			RestartPolicy: v1.RestartPolicyNever,
+			ShareProcessNamespace: &sharePID,
+			SchedulerName:         PodSchedulingSelector(bread),
+			RestartPolicy:         v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
 					Name:  bread.Name,
@@ -139,7 +144,7 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 					Name: bread.Name + "-vol",
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
-							Path: "/gluster-vol/"+bread.Namespace,
+							Path: "/gluster-vol/" + bread.Namespace,
 						},
 					},
 				},
@@ -147,4 +152,16 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 		},
 	}
 	return r.Client.Create(ctx, &TaskPod)
+}
+
+func (r *BreadReconciler) DeletePod(ctx context.Context, req ctrl.Request) error {
+	pod := v1.Pod{}
+	err := r.Client.Get(ctx, req.NamespacedName, &pod)
+	if err != nil {
+		return err
+	}
+	if err = r.Delete(ctx, &pod); err != nil {
+		return err
+	}
+	return nil
 }

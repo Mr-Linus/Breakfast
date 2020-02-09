@@ -54,6 +54,18 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+
+	// Set Finalizer
+	if r.SetFinalizer(&bread, deleteFinalizer) {
+		return ctrl.Result{}, r.Update(ctx, &bread)
+	}
+	// Delete CR Policy
+	if r.NeedToDelete(&bread) {
+		if err := r.OnDelete(ctx, req, deleteFinalizer, &bread); err != nil {
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, r.Update(ctx, &bread)
+	}
 	// Create CR Policy
 	err := r.Client.Get(ctx, req.NamespacedName, &pod)
 	if errors.IsNotFound(err) {
@@ -68,24 +80,20 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	//Update CR & Pod Policy
 	if pod.Spec.SchedulerName != PodSchedulingSelector(&bread) {
 		log.Info("Pod: " + pod.Name + " SchedulerName changed. Ready to update the pod")
-		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
+		return ctrl.Result{}, r.OnUpdate(ctx, &pod)
 	}
 	if !reflect.DeepEqual(pod.GetLabels(), GetPodLabel(&bread)) {
 		log.Info("Pod: " + pod.Name + " label changed. Ready to update the pod")
-		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
+		return ctrl.Result{}, r.OnUpdate(ctx, &pod)
 	}
 	// Update Pod Policy
 	if pod.Status.Phase == v1.PodUnknown || pod.Status.Phase == v1.PodFailed {
 		log.Info("Pod: " + pod.Name + " status is" + pod.Status.String() + " . Ready to update the pod")
-		return ctrl.Result{}, r.OnUpdate(ctx, &bread, &pod)
+		return ctrl.Result{}, r.OnUpdate(ctx, &pod)
 	}
 	bread.Status.Phase = pod.Status.Phase
 	bread.Status.ContainerStatuses = pod.Status.ContainerStatuses
-	// Delete CR Policy
-	if err := r.OnDelete(ctx, req, deleteFinalizer, &bread); err != nil {
-		return ctrl.Result{}, err
-	}
-	return ctrl.Result{}, nil
+	return ctrl.Result{}, r.Status().Update(ctx, &bread)
 }
 
 func (r *BreadReconciler) SetupWithManager(mgr ctrl.Manager) error {

@@ -6,7 +6,7 @@ metadata:
 spec:
   scv:
     gpu: "1"
-    memory: "1000"
+    memory: "4000"
     level: "Medium"
   framework:
     name: "tensorflow"
