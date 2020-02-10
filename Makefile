@@ -82,4 +82,4 @@ endif
 # Export the deploy yaml
 export: manifests
 	cd config/manager && kustomize edit set image controller=${IMG}
-	kustomize build config/default > deploy/deploy.yaml
+	kustomize build config/default > deploy/breakfast.yaml
