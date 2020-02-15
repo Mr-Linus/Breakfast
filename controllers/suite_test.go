@@ -23,6 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
+	corev1alpha2 "github.com/NJUPT-ISL/Breakfast/api/v1alpha2"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -61,6 +62,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(cfg).ToNot(BeNil())
 
 	err = corev1alpha1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = corev1alpha2.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:scheme

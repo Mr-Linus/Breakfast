@@ -18,6 +18,7 @@ package controllers
 import (
 	"context"
 	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
+	corev1alpha2 "github.com/NJUPT-ISL/Breakfast/api/v1alpha2"
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -41,7 +42,7 @@ type BreadReconciler struct {
 func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	var (
 		ctx             = context.Background()
-		bread           corev1alpha1.Bread
+		bread           corev1alpha2.Bread
 		deleteFinalizer = "onDelete"
 		log             = r.Log.WithValues("bread", req.NamespacedName)
 		pod             = v1.Pod{}

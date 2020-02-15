@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"context"
-	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
+	corev1alpha2 "github.com/NJUPT-ISL/Breakfast/api/v1alpha2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 // OnCreate is used to create pod. It will not update the CR.
-func (r *BreadReconciler) OnCreate(ctx context.Context, bread *corev1alpha1.Bread) error {
+func (r *BreadReconciler) OnCreate(ctx context.Context, bread *corev1alpha2.Bread) error {
 	log := r.Log.WithName("Create")
 	if TaskIsSSH(bread) {
 		log.Info("Create SSH Pod: " + bread.Name)
@@ -24,7 +24,7 @@ func (r *BreadReconciler) OnCreate(ctx context.Context, bread *corev1alpha1.Brea
 // OnDelete will judge whether CR needs to be deleted.
 // If the CR needs to be deleted, OnDelete will return true and
 // delete Finalizer.
-func (r *BreadReconciler) OnDelete(ctx context.Context, req ctrl.Request, deleteFinalizer string, bread *corev1alpha1.Bread) error {
+func (r *BreadReconciler) OnDelete(ctx context.Context, req ctrl.Request, deleteFinalizer string, bread *corev1alpha2.Bread) error {
 	log := r.Log.WithName("Delete")
 	if !bread.ObjectMeta.DeletionTimestamp.IsZero() {
 		if r.CheckFinalizer(bread, deleteFinalizer) {
@@ -39,7 +39,7 @@ func (r *BreadReconciler) OnDelete(ctx context.Context, req ctrl.Request, delete
 }
 
 // Check the Bread is need to be deleted
-func (r *BreadReconciler) NeedToDelete(bread *corev1alpha1.Bread) bool {
+func (r *BreadReconciler) NeedToDelete(bread *corev1alpha2.Bread) bool {
 	return !bread.ObjectMeta.DeletionTimestamp.IsZero()
 }
 

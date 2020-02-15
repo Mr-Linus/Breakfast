@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"context"
-	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
+	corev1alpha2 "github.com/NJUPT-ISL/Breakfast/api/v1alpha2"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 )
 
-func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
+func GetPodLabel(bread *corev1alpha2.Bread) map[string]string {
 	labels := map[string]string{"bread": bread.Name}
 	if bread.Spec.Scv.Level != "" {
 		labels["scv/Level"] = bread.Spec.Scv.Level
@@ -23,18 +23,18 @@ func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
 	return labels
 }
 
-func PodSchedulingSelector(bread *corev1alpha1.Bread) string {
+func PodSchedulingSelector(bread *corev1alpha2.Bread) string {
 	if bread.Spec.Scv.Gpu != "0" {
 		return "yoda-scheduler"
 	}
 	return "default-scheduler"
 }
 
-func TaskIsSSH(bread *corev1alpha1.Bread) bool {
+func TaskIsSSH(bread *corev1alpha2.Bread) bool {
 	return bread.Spec.Task.Type == "ssh"
 }
 
-func GetPodImage(bread *corev1alpha1.Bread) string {
+func GetPodImage(bread *corev1alpha2.Bread) string {
 	if bread.Spec.Scv.Gpu != "0" {
 		return "registry.cn-hangzhou.aliyuncs.com/njupt-isl/" +
 			bread.Spec.Framework.Name +
@@ -47,7 +47,7 @@ func GetPodImage(bread *corev1alpha1.Bread) string {
 		bread.Spec.Framework.Version
 }
 
-func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.Bread) error {
+func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha2.Bread) error {
 	var sharePID = true
 	var sshPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -103,7 +103,7 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 	return r.Client.Create(ctx, &sshPod)
 }
 
-func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1.Bread) error {
+func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha2.Bread) error {
 	var sharePID = true
 	var TaskPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
