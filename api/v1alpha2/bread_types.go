@@ -43,6 +43,7 @@ type BreadStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 // Bread is the Schema for the breads API
 type Bread struct {
 	metav1.TypeMeta   `json:",inline"`

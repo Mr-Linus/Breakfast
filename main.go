@@ -17,14 +17,13 @@ package main
 
 import (
 	"flag"
-	"os"
-
 	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
 	corev1alpha2 "github.com/NJUPT-ISL/Breakfast/api/v1alpha2"
 	"github.com/NJUPT-ISL/Breakfast/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
@@ -79,16 +78,7 @@ func main() {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Bread")
 		os.Exit(1)
 	}
-	if err = (&controllers.BreadReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Bread"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Bread")
-		os.Exit(1)
-	}
 	// +kubebuilder:scaffold:builder
-
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")

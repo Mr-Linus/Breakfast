@@ -17,7 +17,6 @@ package controllers
 
 import (
 	"context"
-	corev1alpha1 "github.com/NJUPT-ISL/Breakfast/api/v1alpha1"
 	corev1alpha2 "github.com/NJUPT-ISL/Breakfast/api/v1alpha2"
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
@@ -99,6 +98,6 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 func (r *BreadReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1alpha1.Bread{}).Watches(&source.Kind{Type: &v1.Pod{}}, &EnqueueRequest{}).
+		For(&corev1alpha2.Bread{}).Watches(&source.Kind{Type: &v1.Pod{}}, &EnqueueRequest{}).
 		Complete(r)
 }
