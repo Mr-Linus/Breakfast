@@ -36,7 +36,7 @@ func TaskIsSSH(bread *corev1alpha2.Bread) bool {
 
 func GetPodImage(bread *corev1alpha2.Bread) string {
 	if bread.Spec.Scv.Gpu != "0" {
-		return "registry.cn-hangzhou.aliyuncs.com/njupt-isl/" +
+		return "ccr.ccs.tencentyun.com/njupt-isl/" +
 			bread.Spec.Framework.Name +
 			"-gpu:" +
 			bread.Spec.Framework.Version
