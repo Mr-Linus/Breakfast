@@ -41,7 +41,7 @@ func GetPodImage(bread *corev1alpha2.Bread) string {
 			"-gpu:" +
 			bread.Spec.Framework.Version
 	}
-	return "registry.cn-hangzhou.aliyuncs.com/njupt-isl/" +
+	return "ccr.ccs.tencentyun.com/njupt-isl/" +
 		bread.Spec.Framework.Name +
 		"-cpu:" +
 		bread.Spec.Framework.Version
