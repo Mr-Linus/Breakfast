@@ -48,18 +48,18 @@ spec:
                 Important: Run "make" to regenerate code after modifying this file
                 Foo is an example field of Bread. Edit Bread_types.go to remove/update'
               properties:
+                clock:
+                  type: string
                 gpu:
                   type: string
-                level:
-                  type: string
                 memory:
+                  type: string
+                priority:
                   type: string
               type: object
             task:
               properties:
                 command:
-                  type: string
-                path:
                   type: string
                 type:
                   type: string

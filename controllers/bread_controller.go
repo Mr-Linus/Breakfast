@@ -89,7 +89,7 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	// Update Pod Policy
 	if pod.Status.Phase == v1.PodUnknown || pod.Status.Phase == v1.PodFailed {
 		log.Info("Pod: " + pod.Name + " status is" + pod.Status.String() + " . Ready to update the pod")
-		if bread.Spec.Task.Type != "train"{
+		if bread.Spec.Task.Type != "train" {
 			return ctrl.Result{}, r.OnUpdate(ctx, &pod)
 		}
 	}

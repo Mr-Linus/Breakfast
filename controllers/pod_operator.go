@@ -11,13 +11,16 @@ import (
 
 func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
 	labels := map[string]string{"bread": bread.Name}
-	if bread.Spec.Scv.Level != "" {
-		labels["scv/Level"] = bread.Spec.Scv.Level
+	if bread.Spec.Scv.Clock != "" {
+		labels["scv/clock"] = bread.Spec.Scv.Clock
+	}
+	if bread.Spec.Scv.Priority != "" {
+		labels["scv/priority"] = bread.Spec.Scv.Priority
 	}
 	if bread.Spec.Scv.Gpu != "0" {
-		labels["scv/Number"] = bread.Spec.Scv.Gpu
+		labels["scv/number"] = bread.Spec.Scv.Gpu
 		if bread.Spec.Scv.Memory != "" {
-			labels["scv/FreeMemory"] = bread.Spec.Scv.Memory
+			labels["scv/memory"] = bread.Spec.Scv.Memory
 		}
 	}
 	return labels
@@ -25,7 +28,7 @@ func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
 
 func PodSchedulingSelector(bread *corev1alpha1.Bread) string {
 	if bread.Spec.Scv.Gpu != "0" {
-		return "yoda-scheduler"
+		return "yoda-scheduler2"
 	}
 	return "default-scheduler"
 }

@@ -16,7 +16,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/go-openapi/swag"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -80,15 +79,6 @@ func (r *Bread) ValidateDelete() error {
 	return nil
 }
 
-func (r *Bread) ValidateSCV() *field.Error {
-	if !swag.ContainsStrings([]string{"High", "Medium", "Low", ""}, r.Spec.Scv.Level) {
-		return field.Invalid(field.NewPath("spec").Child("scv").Child("level"),
-			r.Spec.Scv.Level,
-			"SCV Level can't set to:"+r.Spec.Scv.Level)
-	}
-	return nil
-}
-
 func (r *Bread) ValidateTask() *field.Error {
 	if r.Spec.Task.Type != "ssh" && r.Spec.Task.Type != "train" {
 		return field.Invalid(field.NewPath("spec").Child("task").Child("type"),
@@ -105,7 +95,7 @@ func (r *Bread) ValidateTask() *field.Error {
 }
 
 func (r *Bread) ValidateFreamwork() *field.Error {
-	if r.Spec.Framework.Name != "tensorflow" && r.Spec.Framework.Name != "pytorch" {
+	if r.Spec.Framework.Name != "tensorflow" && r.Spec.Framework.Name != "pytorch" && r.Spec.Framework.Name != "cuda"{
 		return field.Invalid(
 			field.NewPath("spec").Child("framework").Child("name"),
 			r.Spec.Framework.Name,
@@ -117,9 +107,6 @@ func (r *Bread) ValidateFreamwork() *field.Error {
 
 func (r *Bread) ValidateBread() error {
 	var allErrs field.ErrorList
-	if err := r.ValidateSCV(); err != nil {
-		allErrs = append(allErrs, err)
-	}
 	if err := r.ValidateFreamwork(); err != nil {
 		allErrs = append(allErrs, err)
 	}

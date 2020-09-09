@@ -53,18 +53,18 @@ spec:
                 Important: Run "make" to regenerate code after modifying this file
                 Foo is an example field of Bread. Edit Bread_types.go to remove/update'
               properties:
+                clock:
+                  type: string
                 gpu:
                   type: string
-                level:
-                  type: string
                 memory:
+                  type: string
+                priority:
                   type: string
               type: object
             task:
               properties:
                 command:
-                  type: string
-                path:
                   type: string
                 type:
                   type: string
@@ -461,7 +461,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.4.1
+        image: gcr.azk8s.cn/kubebuilder/kube-rbac-proxy:v0.4.1
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
@@ -471,7 +471,7 @@ spec:
         - --enable-leader-election
         command:
         - /manager
-        image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/bread-controller:latest
+        image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/bread-controller:2.0
         name: manager
         ports:
         - containerPort: 9443

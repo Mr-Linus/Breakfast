@@ -62,9 +62,10 @@ type BreadList struct {
 
 // +kubebuilder:object:generate=true
 type SCVSpec struct {
-	Gpu    string `json:"gpu,omitempty"`
-	Memory string `json:"memory,omitempty"`
-	Level  string `json:"level,omitempty"`
+	Gpu      string `json:"gpu,omitempty"`
+	Memory   string `json:"memory,omitempty"`
+	Clock    string `json:"clock,omitempty"`
+	Priority string `json:"priority,omitempty"`
 }
 
 type FrameworkSpec struct {
@@ -74,7 +75,6 @@ type FrameworkSpec struct {
 
 type TaskSpec struct {
 	Type    string `json:"type,omitempty"`
-	Path    string `json:"path,omitempty"`
 	Command string `json:"command,omitempty"`
 }
 
