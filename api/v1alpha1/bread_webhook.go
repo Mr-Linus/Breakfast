@@ -95,7 +95,7 @@ func (r *Bread) ValidateTask() *field.Error {
 }
 
 func (r *Bread) ValidateFreamwork() *field.Error {
-	if r.Spec.Framework.Name != "tensorflow" && r.Spec.Framework.Name != "pytorch" && r.Spec.Framework.Name != "cuda"{
+	if r.Spec.Framework.Name != "tensorflow" && r.Spec.Framework.Name != "pytorch" && r.Spec.Framework.Name != "cuda" {
 		return field.Invalid(
 			field.NewPath("spec").Child("framework").Child("name"),
 			r.Spec.Framework.Name,

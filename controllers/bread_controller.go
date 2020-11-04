@@ -54,7 +54,6 @@ func (r *BreadReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-
 	// Set Finalizer
 	if r.SetFinalizer(&bread, deleteFinalizer) {
 		return ctrl.Result{}, r.Update(ctx, &bread)

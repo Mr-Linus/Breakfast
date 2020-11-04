@@ -23,6 +23,7 @@ func GetPodLabel(bread *corev1alpha1.Bread) map[string]string {
 			labels["scv/memory"] = bread.Spec.Scv.Memory
 		}
 	}
+
 	return labels
 }
 
@@ -50,7 +51,7 @@ func GetPodImage(bread *corev1alpha1.Bread) string {
 		bread.Spec.Framework.Version
 }
 
-func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.Bread) error {
+func (r *BreadReconciler) CreateSSHPodWithoutNodeSelected(ctx context.Context, bread *corev1alpha1.Bread) error {
 	var sharePID = true
 	var sshPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -65,6 +66,63 @@ func (r *BreadReconciler) CreateSSHPod(ctx context.Context, bread *corev1alpha1.
 		Spec: v1.PodSpec{
 			ShareProcessNamespace: &sharePID,
 			SchedulerName:         PodSchedulingSelector(bread),
+			RestartPolicy:         v1.RestartPolicyNever,
+			Containers: []v1.Container{
+				{
+					Name:  bread.Name,
+					Image: GetPodImage(bread),
+					Env: []v1.EnvVar{
+						{
+							Name:  "PYTHONUNBUFFERED",
+							Value: "0",
+						},
+					},
+					Ports: []v1.ContainerPort{
+						{
+							Name:          "ssh",
+							ContainerPort: 22,
+						},
+					},
+					Resources: v1.ResourceRequirements{},
+					VolumeMounts: []v1.VolumeMount{
+						{
+							Name:      bread.Name + "-vol",
+							MountPath: "/root",
+						},
+					},
+				},
+			},
+			Volumes: []v1.Volume{
+				{
+					Name: bread.Name + "-vol",
+					VolumeSource: v1.VolumeSource{
+						HostPath: &v1.HostPathVolumeSource{
+							Path: "/gluster-vol/" + bread.Namespace,
+						},
+					},
+				},
+			},
+		},
+	}
+	return r.Client.Create(ctx, &sshPod)
+}
+
+func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, bread *corev1alpha1.Bread, labels map[string]string) error {
+	var sharePID = true
+	var sshPod = v1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Pod",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: bread.Namespace,
+			Name:      bread.Name,
+			Labels:    GetPodLabel(bread),
+		},
+		Spec: v1.PodSpec{
+			ShareProcessNamespace: &sharePID,
+			SchedulerName:         PodSchedulingSelector(bread),
+			NodeSelector:          labels,
 			RestartPolicy:         v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{
