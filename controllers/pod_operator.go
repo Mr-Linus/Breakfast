@@ -107,7 +107,7 @@ func (r *BreadReconciler) CreateSSHPodWithoutNodeSelected(ctx context.Context, b
 	return r.Client.Create(ctx, &sshPod)
 }
 
-func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, bread *corev1alpha1.Bread, labels map[string]string) error {
+func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, bread *corev1alpha1.Bread, nodeName string) error {
 	var sharePID = true
 	var sshPod = v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -122,7 +122,7 @@ func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, brea
 		Spec: v1.PodSpec{
 			ShareProcessNamespace: &sharePID,
 			SchedulerName:         PodSchedulingSelector(bread),
-			NodeSelector:          labels,
+			NodeName:              nodeName,
 			RestartPolicy:         v1.RestartPolicyNever,
 			Containers: []v1.Container{
 				{

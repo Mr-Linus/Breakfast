@@ -14,7 +14,7 @@ func (r *BreadReconciler) OnCreate(ctx context.Context, bread *corev1alpha1.Brea
 	if TaskIsSSH(bread) {
 		if labels := bread.GetLabels(); labels["kubernetes.io/hostname"] != "" {
 			log.Info("Create SSH Pod" + bread.Name + "with selected node: " + labels["kubernetes.io/hostname"])
-			return r.CreateSSHPodWithNodeSelected(ctx, bread, labels)
+			return r.CreateSSHPodWithNodeSelected(ctx, bread, labels["kubernetes.io/hostname"])
 		} else {
 			log.Info("Create SSH Pod: " + bread.Name)
 			return r.CreateSSHPodWithoutNodeSelected(ctx, bread)
