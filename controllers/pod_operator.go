@@ -67,6 +67,7 @@ func (r *BreadReconciler) CreateSSHPodWithoutNodeSelected(ctx context.Context, b
 			ShareProcessNamespace: &sharePID,
 			SchedulerName:         PodSchedulingSelector(bread),
 			RestartPolicy:         v1.RestartPolicyNever,
+
 			Containers: []v1.Container{
 				{
 					Name:  bread.Name,
@@ -89,6 +90,10 @@ func (r *BreadReconciler) CreateSSHPodWithoutNodeSelected(ctx context.Context, b
 							Name:      bread.Name + "-vol",
 							MountPath: "/root",
 						},
+						{
+							MountPath: "/dev/shm",
+							Name: "dshm",
+						},
 					},
 				},
 			},
@@ -98,6 +103,14 @@ func (r *BreadReconciler) CreateSSHPodWithoutNodeSelected(ctx context.Context, b
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
 							Path: "/gluster-vol/" + bread.Namespace,
+						},
+					},
+				},
+				{
+					Name: "dshm",
+					VolumeSource: v1.VolumeSource{
+						EmptyDir: &v1.EmptyDirVolumeSource{
+							Medium: "Memory",
 						},
 					},
 				},
@@ -155,6 +168,14 @@ func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, brea
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
 							Path: "/gluster-vol/" + bread.Namespace,
+						},
+					},
+				},
+				{
+					Name: "dshm",
+					VolumeSource: v1.VolumeSource{
+						EmptyDir: &v1.EmptyDirVolumeSource{
+							Medium: "Memory",
 						},
 					},
 				},
