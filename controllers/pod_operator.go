@@ -238,14 +238,14 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 						},
 					},
 				},
-				{
-					Name: "dshm",
-					VolumeSource: v1.VolumeSource{
-						EmptyDir: &v1.EmptyDirVolumeSource{
-							Medium: v1.StorageMediumMemory,
-						},
-					},
-				},
+				//{
+				//	Name: "dshm",
+				//	VolumeSource: v1.VolumeSource{
+				//		EmptyDir: &v1.EmptyDirVolumeSource{
+				//			Medium: v1.StorageMediumMemory,
+				//		},
+				//	},
+				//},
 			},
 		},
 	}
