@@ -110,7 +110,7 @@ func (r *BreadReconciler) CreateSSHPodWithoutNodeSelected(ctx context.Context, b
 					Name: "dshm",
 					VolumeSource: v1.VolumeSource{
 						EmptyDir: &v1.EmptyDirVolumeSource{
-							Medium: "Memory",
+							Medium: v1.StorageMediumMemory,
 						},
 					},
 				},
@@ -159,6 +159,10 @@ func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, brea
 							Name:      bread.Name + "-vol",
 							MountPath: "/root",
 						},
+						{
+							MountPath: "/dev/shm",
+							Name: "dshm",
+						},
 					},
 				},
 			},
@@ -175,7 +179,7 @@ func (r *BreadReconciler) CreateSSHPodWithNodeSelected(ctx context.Context, brea
 					Name: "dshm",
 					VolumeSource: v1.VolumeSource{
 						EmptyDir: &v1.EmptyDirVolumeSource{
-							Medium: "Memory",
+							Medium: v1.StorageMediumMemory,
 						},
 					},
 				},
@@ -218,6 +222,10 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 							Name:      bread.Name + "-vol",
 							MountPath: "/root",
 						},
+						{
+							MountPath: "/dev/shm",
+							Name: "dshm",
+						},
 					},
 				},
 			},
@@ -227,6 +235,14 @@ func (r *BreadReconciler) CreateTaskPod(ctx context.Context, bread *corev1alpha1
 					VolumeSource: v1.VolumeSource{
 						HostPath: &v1.HostPathVolumeSource{
 							Path: "/gluster-vol/" + bread.Namespace,
+						},
+					},
+				},
+				{
+					Name: "dshm",
+					VolumeSource: v1.VolumeSource{
+						EmptyDir: &v1.EmptyDirVolumeSource{
+							Medium: v1.StorageMediumMemory,
 						},
 					},
 				},
