@@ -13,7 +13,7 @@ Learning pods through custom controllers.
 - Kubernetes v1.15+
 - [SCV](https://github.com/NJUPT-ISL/SCV) has been deployed.
 - [Yoda-Scheduler](https://github.com/NJUPT-ISL/Yoda-Scheduler) has been deployed.
-
+- [Cert-Manager](https://cert-manager.io/)
 ### Deploy Breakfast
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Breakfast/master/deploy/breakfast.yaml
